@@ -47,16 +47,26 @@ exports.post("/login", (req, res) => {
 
 exports.get("/me", (req, res) => {
   const token = req.headers.token;
-  if (!token) {
-    return res.status(401).send("Access Denied");
-  }
+const decodedData = jwt.verify(token, SECRET_KEY);
+const username = decodedData.username;
 
-  jwt.verify(token, SECRET_KEY, (err, decoded) => {
-    if (err) return res.status(403).send("Invalid Token");
-    res.json({
-      user: decoded,
-    });
-  });
+let foundeUser = null;
+for( let i =0; i<users.length; i++){
+  if(users[i].username == username){
+    foundeUser = username;
+  }
+}
+if(foundeUser){
+  res.json({
+    username: foundeUser.username,
+    password: foundeUser.password
+  })
+}
+else{
+  res.json({
+    messagee: " Token is invalid "
+  })
+}
 });
 
 app.listen(3000);
